@@ -1,35 +1,62 @@
-import torch
 import whisper
 import os
 import base64
 from io import BytesIO
+import requests
 
 # Init is ran on server startup
 # Load your model to GPU as a global variable here using the variable name "model"
+
+
 def init():
     global model
-    #medium, large-v1, large-v2
+    # medium, large-v1, large-v2
     model_name = "medium"
     model = whisper.load_model(model_name)
 
 # Inference is ran for every server call
 # Reference your preloaded global model variable here.
-def inference(model_inputs:dict) -> dict:
+
+def inference(model_inputs: dict) -> dict:
     global model
 
-    #Parse out your arguments
+    # Parse out your arguments
     mp3BytesString = model_inputs.get('mp3BytesString', None)
+    original_start_time = model_inputs.get('start_time', None)
+    original_end_time = model_inputs.get('end_time', None)
     if mp3BytesString == None:
         return {'message': 'No input provided'}
 
     mp3Bytes = BytesIO(base64.b64decode(mp3BytesString.encode("ISO-8859-1")))
-    with open('input.mp3','wb') as file:
+    with open('input.mp3', 'wb') as file:
         file.write(mp3Bytes.getbuffer())
 
     # Run the model
     result = model.transcribe("input.mp3")
     output = {"text": result}
-    print('This is the output', output)
+    print('This is the output', result)
     os.remove("input.mp3")
     # Return the results as a dictionary
+
+    segments = result['segments']
+    filtered_segments = []
+    for data in segments:
+        filtered_segments.append({
+            'id': data['id'],
+            'seek': data['seek'],
+            'start': data['start'],
+            'end': data['end'],
+            'text': data['text']
+        }
+        )
+
+    data = {
+        'text': result['text'],
+        'original_start_time': original_start_time,
+        'original_end_time': original_end_time,
+        'segments':  filtered_segments
+    }
+    requests.post(
+        'https://us-central1-curator-a7ae1.cloudfunctions.net/addTranscriptToAudio', data=data)
+
     return output
