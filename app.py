@@ -38,7 +38,7 @@ def inference(model_inputs: dict) -> dict:
     os.remove("input.mp3")
     # Return the results as a dictionary
 
-    segments = result['segments']
+    segments = result['modelOutputs'][0]['segments']
     filtered_segments = []
     for data in segments:
         filtered_segments.append({
