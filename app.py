@@ -38,25 +38,26 @@ def inference(model_inputs: dict) -> dict:
     os.remove("input.mp3")
     # Return the results as a dictionary
 
-    # segments = result['modelOutputs'][0]['segments']
-    # filtered_segments = []
-    # for data in segments:
-    #     filtered_segments.append({
-    #         'id': data['id'],
-    #         'seek': data['seek'],
-    #         'start': data['start'],
-    #         'end': data['end'],
-    #         'text': data['text']
-    #     }
-    #     )
+    segments = result['segments']
+    filtered_segments = []
+    for data in segments:
+        filtered_segments.append({
+            'id': data['id'],
+            'seek': data['seek'],
+            'start': data['start'],
+            'end': data['end'],
+            'text': data['text']
+        }
+        )
 
     data = {
         'text': result['text'],
         'original_start_time': original_start_time,
         'original_end_time': original_end_time,
-        # 'segments':  filtered_segments
+        'segments':  filtered_segments
     }
+    print('this is the data',data)
     requests.post(
         'https://us-central1-curator-a7ae1.cloudfunctions.net/addTranscriptToAudio', data=data)
 
-    return output
+    return filtered_segments
