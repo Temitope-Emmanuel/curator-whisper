@@ -60,4 +60,4 @@ def inference(model_inputs: dict) -> dict:
     requests.post(
         'https://us-central1-curator-a7ae1.cloudfunctions.net/addTranscriptToAudio', data=data)
 
-    return filtered_segments
+    return data
