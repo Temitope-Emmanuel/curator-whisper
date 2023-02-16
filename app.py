@@ -32,7 +32,7 @@ def inference(model_inputs: dict) -> dict:
         file.write(mp3Bytes.getbuffer())
 
     # Run the model
-    result = model.transcribe("input.mp3")
+    result = model.transcribe("input.mp3",language="English")
     output = {"text": result['segments']}
     print('This is the output', result)
     os.remove("input.mp3")
