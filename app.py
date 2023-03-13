@@ -12,7 +12,7 @@ import json
 def init():
     global model
     # medium, large-v1, large-v2
-    model_name = "large-v2"
+    model_name = "large-v1"
     model = whisper.load_model(model_name)
 
 # Inference is ran for every server call
